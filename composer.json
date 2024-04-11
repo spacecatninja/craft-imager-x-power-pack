@@ -1,0 +1,50 @@
+{
+    "name": "spacecatninja/imager-x-power-pack",
+    "description": "Unlocks a stash of hidden weapons in your quest to optimize images, while simultaniously saving time and cognitive load.",
+    "type": "craft-plugin",
+    "version": "1.0.0-beta",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "imager",
+        "responsive-images",
+        "picture",
+        "srcset",
+        "sizes",
+        "lazyload"
+    ],
+    "support": {
+        "docs": "https://github.com/spacecatninja/craft-imager-x-power-pack/blob/master/README.md",
+        "issues": "https://github.com/spacecatninja/craft-imager-x-power-pack/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "SPACECATNINJA",
+            "homepage": "https://www.spacecat.ninja"
+        }
+    ],
+    "require": {
+        "php": "^8.0.2",
+        "ext-imagick": "*",
+        "craftcms/cms": "^4.5.0|^5.0.0",
+        "spacecatninja/imager-x": "^4.3.0|^5.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "spacecatninja\\imagerxpowerpack\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Imager X Power Pack",
+        "handle": "imager-x-power-pack",
+        "schemaVersion": "1.0.0",
+        "hasCpSettings": false,
+        "hasCpSection": false,
+        "changelogUrl": "https://raw.githubusercontent.com/spacecatninja/craft-imager-x-power-pack/master/CHANGELOG.md",
+        "components": {},
+        "class": "spacecatninja\\imagerxpowerpack\\PowerPack"
+    }
+}
