@@ -152,6 +152,14 @@ class PowerPackService extends Component
 
         // If using lazysizes, let's output a rudimentary noscript alternative
         if ($settings->lazysizes && $fallbackImage) {
+            if (isset($params['class'])) {
+                $params['class'] = trim(str_replace($settings->lazysizesClass, '', $params['class']));
+                
+                if ($params['class'] === '') {
+                    $params['class'] = null;
+                }
+            }
+            
             $noscriptImg = Html::tag('img', PHP_EOL, [
                     'src' => $fallbackImage->url,
                     'width' => $fallbackImage->width,
