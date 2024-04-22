@@ -181,6 +181,32 @@ class PowerPackService extends Component
         return $this->createPicture([$image, $transform], $params, $configOverrides, true);
     }
 
+    public function createPlaceholder(Asset|string $image, string $output='attr', string $type='dominantColor', ?array $configOverrides = null): string
+    {
+        /* @var Settings $settings */
+        $settings = clone PowerPack::getInstance()?->getSettings(); // cloning to avoid overriding cached values when applying overrides
+        
+        if ($configOverrides !== null) {
+            $settings->setAttributes($configOverrides, false);
+        }
+
+        if (empty($type)) {
+            return '';
+        }
+        
+        $settings->placeholder = $type;
+        
+        $transform = ImagerX::getInstance()->imager->transformImage($image, ['width' => 200 ], [], ['transformer' => 'craft']);
+        $styles = PowerPackHelpers::getPlaceholderStyles($transform, $settings);
+
+        if ($styles === '') {
+            return '';
+        }
+        
+        return $output==='attr' ? 'style="'.$styles.'"' : $styles;
+    }
+    
+    
     private function maybeLoadLazysizes(Settings $settings): void
     {
         if ($settings->lazysizes && $settings->autoloadLazysizes) {

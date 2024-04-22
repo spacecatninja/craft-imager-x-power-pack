@@ -39,6 +39,7 @@ class PowerPackTwigExtension extends AbstractExtension
         return [
             new TwigFunction('pppicture', [$this, 'pppicture'], ['is_safe' => ['html']]),
             new TwigFunction('ppimg', [$this, 'ppimg'], ['is_safe' => ['html']]),
+            new TwigFunction('ppplaceholder', [$this, 'ppplaceholder'], ['is_safe' => ['html']]),
         ];
     }
 
@@ -50,5 +51,10 @@ class PowerPackTwigExtension extends AbstractExtension
     public function ppimg(Asset|string $image, array|string $transform, array $params = [], array $configOverrides = []): Markup
     {
         return PowerPack::getInstance()->power->createImg($image, $transform, $params, $configOverrides);
+    }
+    
+    public function ppplaceholder(Asset|string $image, string $output='attr', string $type='dominantColor', ?array $configOverrides = null): string
+    {
+        return PowerPack::getInstance()->power->createPlaceholder($image, $output, $type, $configOverrides);
     }
 }
