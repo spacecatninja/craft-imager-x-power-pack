@@ -157,5 +157,24 @@ class PowerPackHelpers
 
         return '';
     }
+    
+    public static function isSvg(Asset|string $image): bool
+    {
+        if ($image instanceof Asset) {
+            return $image->extension === 'svg';
+        }
+        
+        return pathinfo($image, PATHINFO_EXTENSION) === 'svg';
+    }
 
+    public static function isAnimatedGif(Asset|string $image): bool
+    {
+        if ($image instanceof Asset) {
+            $extension = $image->extension;
+        } else {
+            $extension = pathinfo($image, PATHINFO_EXTENSION);
+        }
+        
+        return $extension === 'gif' && ImagerX::getInstance()->imagerx->isAnimated($image);
+    }
 }

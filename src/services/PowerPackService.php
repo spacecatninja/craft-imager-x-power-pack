@@ -10,7 +10,9 @@ namespace spacecatninja\imagerxpowerpack\services;
 
 use craft\base\Component;
 use craft\elements\Asset;
+use craft\helpers\App;
 use craft\helpers\Html;
+use craft\image\Svg;
 use spacecatninja\imagerx\exceptions\ImagerException;
 use spacecatninja\imagerx\ImagerX;
 use spacecatninja\imagerx\services\ImagerService;
@@ -64,50 +66,93 @@ class PowerPackService extends Component
         $sources = PowerPackHelpers::parseSources($sources);
 
         $elements = [];
-        $fallbackImage = null;
+        $fallbackSrcUrl = null;
 
         foreach ($sources as [$image, $transform, $mediaQuery, $format]) {
             $isLast = !(count($elements) < (count($sources) - 1));
             $elementType = $isLast ? 'img' : 'source';
+            $canHavePlaceholder = true;
 
-            try {
-                $transforms = ImagerX::getInstance()->imager->transformImage($image, $transform, $defaults, $imagerOverrides);
-            } catch (ImagerException $e) {
-                \Craft::error('An error occured when trying to transform image in Imager X Power Pack: '.$e->getMessage(), __METHOD__);
-
-                if ($imagerConfig->suppressExceptions) {
-                    return new Markup('', 'utf-8');
+            if ((PowerPackHelpers::isSvg($image) && !$settings->transformSvgs) || (PowerPackHelpers::isAnimatedGif($image) && !$settings->transformAnimatedGifs)) {
+                $defaultImage = $image;
+                $canHavePlaceholder = false;
+                
+                if ($image instanceof Asset) {
+                    $defaultImageWidth = $image->width ?? 1;
+                    $defaultImageHeight = $image->height ?? 1;
+                    $srcset = $image->url.' '.$defaultImageWidth.'w';
+                    $srcImageUrl = $image->url;
+                } else {
+                    // Image is a string, we need to assume that this can be used as an URL, and is relative to @webroot
+                    
+                    if (str_starts_with($image, '@webroot')) {
+                        $srcImageUrl = '/'.ltrim(ltrim($image, '@webroot'), '/');
+                        $imagePath = App::parseEnv($image);
+                    } else {
+                        $srcImageUrl = '/'.ltrim($image, '/');
+                        $imagePath = App::parseEnv('@webroot'.$srcImageUrl);
+                    }
+                    
+                    if (PowerPackHelpers::isSvg($image)) {
+                        $svg = new Svg();
+                        $svg->loadImage($imagePath);
+                        $defaultImageWidth = $svg->getWidth();
+                        $defaultImageHeight = $svg->getHeight();
+                    } else {
+                        [$defaultImageWidth, $defaultImageHeight] = getimagesize($imagePath);
+                    }
+                    
+                    $defaultImageWidth = $defaultImageWidth ?? 1;
+                    $defaultImageHeight = $defaultImageHeight ?? 1;
+                    
+                    $srcset = $srcImageUrl.' '.$defaultImageWidth.'w';
                 }
+                
+            } else {
+                try {
+                    $transforms = ImagerX::getInstance()->imager->transformImage($image, $transform, $defaults, $imagerOverrides);
+                } catch (ImagerException $e) {
+                    \Craft::error('An error occured when trying to transform image in Imager X Power Pack: '.$e->getMessage(), __METHOD__);
 
-                throw $e;
+                    if ($imagerConfig->suppressExceptions) {
+                        return new Markup('', 'utf-8');
+                    }
+
+                    throw $e;
+                }
+                
+                $defaultImage = $transforms[0] ?? null;
+                $defaultImageWidth = $defaultImage?->width ?? 1;
+                $defaultImageHeight = $defaultImage?->height ?? 1;
+                $srcset = ImagerX::getInstance()->imager->srcset($transforms);
+                $srcImageUrl = $defaultImage?->url;
             }
-
-            $firstImage = $transforms[0] ?? null;
-
+            
             if ($isLast) {
-                $fallbackImage = $firstImage;
+                $fallbackSrcUrl = $srcImageUrl;
+                $fallbackImageWidth = $defaultImageWidth;
+                $fallbackImageHeight = $defaultImageHeight;
             }
-
             if ($settings->lazysizes) {
                 $attrs = [
-                    'src' => $elementType === 'img' ? ImagerX::getInstance()->placeholder->placeholder(['width' => $firstImage?->width, 'height' => $firstImage?->height]) : null,
-                    'srcset' => ImagerX::getInstance()->placeholder->placeholder(['width' => $firstImage?->width, 'height' => $firstImage?->height]),
+                    'src' => $elementType === 'img' ? ImagerX::getInstance()->placeholder->placeholder(['width' => $defaultImageWidth, 'height' => $defaultImageHeight]) : null,
+                    'srcset' => ImagerX::getInstance()->placeholder->placeholder(['width' => $defaultImageWidth, 'height' => $defaultImageHeight]),
                     'data-sizes' => 'auto',
-                    'data-srcset' => ImagerX::getInstance()->imager->srcset($transforms),
-                    'data-aspectratio' => $firstImage ? $firstImage->width / $firstImage->height : null,
+                    'data-srcset' => $srcset,
+                    'data-aspectratio' => $defaultImage ? $defaultImageWidth / $defaultImageHeight : null,
                 ];
             } else {
                 $attrs = [
-                    'src' => $elementType === 'img' ? $firstImage?->url : null,
-                    'srcset' => ImagerX::getInstance()->imager->srcset($transforms),
+                    'src' => $elementType === 'img' ? $srcImageUrl : null,
+                    'srcset' => $srcset,
                     'sizes' => $sizes,
                 ];
             }
 
             if (!isset($params['width'], $params['height'])) {
                 $attrs += [
-                    'width' => $firstImage?->width,
-                    'height' => $firstImage?->height,
+                    'width' => $defaultImageWidth,
+                    'height' => $defaultImageHeight,
                 ];
             }
 
@@ -116,8 +161,8 @@ class PowerPackService extends Component
                     $attrs += $params;
                 }
 
-                if ($settings->placeholder !== '') {
-                    $styles = PowerPackHelpers::getPlaceholderStyles($firstImage, $settings);
+                if ($canHavePlaceholder && $settings->placeholder !== '') {
+                    $styles = PowerPackHelpers::getPlaceholderStyles($defaultImage, $settings);
 
                     if ($styles !== '') {
                         if (isset($attrs['style'])) {
@@ -151,7 +196,7 @@ class PowerPackService extends Component
         }
 
         // If using lazysizes, let's output a rudimentary noscript alternative
-        if ($settings->lazysizes && $fallbackImage) {
+        if ($settings->lazysizes && $fallbackSrcUrl) {
             if (isset($params['class'])) {
                 $params['class'] = trim(str_replace($settings->lazysizesClass, '', $params['class']));
                 
@@ -161,9 +206,9 @@ class PowerPackService extends Component
             }
             
             $noscriptImg = Html::tag('img', PHP_EOL, [
-                    'src' => $fallbackImage->url,
-                    'width' => $fallbackImage->width,
-                    'height' => $fallbackImage->height,
+                    'src' => $fallbackSrcUrl,
+                    'width' => $fallbackImageWidth,
+                    'height' => $fallbackImageHeight,
                 ] + $params);
 
             $markup .= Html::tag('noscript', $noscriptImg);
@@ -205,6 +250,7 @@ class PowerPackService extends Component
         
         return $output==='attr' ? 'style="'.$styles.'"' : $styles;
     }
+    
     
     
     private function maybeLoadLazysizes(Settings $settings): void

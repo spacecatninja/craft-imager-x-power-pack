@@ -21,6 +21,9 @@ class Settings extends Model
     public string $decoding = 'auto';
     public bool $objectPosition = true;
     
+    public bool $transformSvgs = false;
+    public bool $transformAnimatedGifs = false;
+    
     public bool $lazysizes = false;
     public string $lazysizesClass = 'lazyload';
     public bool $autoloadLazysizes = false;
