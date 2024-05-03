@@ -1,6 +1,6 @@
 # Imager X Power Pack for Craft CMS
 
-Unlocks a stash of hidden weapons in your quest to optimize images, while simultaniously
+Unlocks a stash of hidden weapons in your quest to optimize images, while simultaneously
 saving time and cognitive load. It's a good deal.
 
 ## Requirements
@@ -30,7 +30,8 @@ is compact and easy to maintain.
 The Power Pack comes with a number of [config settings](#configuring) that can be used to customize the output. For instance
 will alternative text automatically be pulled from the native `alt` field in Craft, but you can configure it to use a different field
 if you want. The `loading` strategy will be set to `lazy` and `decoding` to `auto`, but this can also be changed, either globally in the
-config, or directly in your templates on a case to case basis.
+config, or directly in your templates on a case to case basis. By default SVGs and animated GIFs will not be transformed, and used as-is
+in a seemless manner, but this can also be reconfigured if you actually want to let Imager handle them.
 
 There is also support for the _awesome_ [lazySizes](https://afarkas.github.io/lazysizes) library, which makes it even easier
 and faster to deliver optimized images. Just enable the `lazysizes` config settings, optionally `autoloadLazysizes` if you don't
@@ -40,7 +41,7 @@ For more details, read on.
 
 ## Template functions
 
-### pppicture($sources[, $params=[], $configOverrides=[]])
+### pppicture($sources[, $params=[], $config=[]])
 
 Ouputs a full `<picture>` tag with all the bells and whistles.
 
@@ -131,7 +132,7 @@ But, you can also provide a full media query if you want. All of these examples 
 ```
 
 In addition to the `sources` parameter, `pppicture` takes two additional parameters; `params`, which are 
-additional parameters, and `configOverrides`, which override the default configuration. The following example
+additional parameters, and `config`, which override the default configuration. The following example
 shows all the available parameters in effect, and an example of overriding a couple of config settings.
 
 ```
@@ -184,7 +185,7 @@ Let's conclude with a very simple example that outputs a responsive image with r
 ```
 
 
-### ppimg($image, $transform[, $params=[], $configOverrides=[]])
+### ppimg($image, $transform[, $params=[], $config=[]])
 
 Outputs a single `<img>` tag. It is almost identical to `pppicture`, but takes `image` and `transform` parameters,
 instead of a `sources` array. 
@@ -214,7 +215,7 @@ A simple example that creates a single `<img>` tag, with attributes based on the
 }}
 ```
 
-### ppplaceholder($image[, $output='attr', $type='dominantColor', $configOverrides=[]])
+### ppplaceholder($image[, $output='attr', $type='dominantColor', $config=[]])
 
 Outputs a placeholder, either as a full style attribute (when `output` is set to `attr`), or as a css style only (when 
 `output` is set to `style`). By default, a dominant color background is created, but this can be changed
@@ -232,6 +233,22 @@ _This is an alternative to the automatic placeholder functionality, which adds t
 make sense to use both at the same time._
 
 _Please note that using this method will result in a transformed image being created using the native `craft` transformer._
+
+This, by the way, is a function that benefits from named parameters:
+
+```
+{{ ppplaceholder(image, type='blurup')
+```
+
+### pptransform($image, $transforms[, $defaults=null, $config=null])
+
+Just a wrapper around `craft.imagerx.transformImage`, because that's alot of typing. It also respects the `transformSvgs` and
+`transformAnimatedGifs` config settings, if these are set to `false`, the asset will be returned untransformed.
+
+```
+{% set transforms = pptransform(image, [1000, 2000]) %}
+{{ transforms|srcset }}
+```
 
 
 ## Configuring
