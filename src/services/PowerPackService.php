@@ -13,8 +13,10 @@ use craft\elements\Asset;
 use craft\helpers\App;
 use craft\helpers\Html;
 use craft\image\Svg;
+use spacecatninja\imagerx\adapters\ImagerAdapterInterface;
 use spacecatninja\imagerx\exceptions\ImagerException;
 use spacecatninja\imagerx\ImagerX;
+use spacecatninja\imagerx\models\TransformedImageInterface;
 use spacecatninja\imagerx\services\ImagerService;
 use spacecatninja\imagerxpowerpack\helpers\PowerPackHelpers;
 use spacecatninja\imagerxpowerpack\PowerPack;
@@ -30,16 +32,7 @@ use Twig\Markup;
  */
 class PowerPackService extends Component
 {
-
-    /**
-     * @param array      $sources
-     * @param array|null $params
-     * @param array|null $configOverrides
-     * @param bool       $imgOnly
-     *
-     * @return \Twig\Markup
-     * @throws \spacecatninja\imagerx\exceptions\ImagerException
-     */
+    
     public function createPicture(array $sources, ?array $params = null, ?array $configOverrides = null, bool $imgOnly = false): Markup
     {
         /* @var Settings $settings */
@@ -219,13 +212,12 @@ class PowerPackService extends Component
         // Return resulting markup
         return new Markup($markup, 'utf-8');
     }
-
-
+    
     public function createImg(Asset|string $image, array|string $transform, array $params = [], array $configOverrides = []): Markup
     {
         return $this->createPicture([$image, $transform], $params, $configOverrides, true);
     }
-
+    
     public function createPlaceholder(Asset|string $image, string $output='attr', string $type='dominantColor', ?array $configOverrides = null): string
     {
         /* @var Settings $settings */
@@ -251,7 +243,22 @@ class PowerPackService extends Component
         return $output==='attr' ? 'style="'.$styles.'"' : $styles;
     }
     
+    public function transform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, array $defaults = null, array $config = null): array|TransformedImageInterface|Asset|null
+    {
+        /* @var Settings $settings */
+        $settings = clone PowerPack::getInstance()?->getSettings();
+        
+        if ((PowerPackHelpers::isSvg($image) && !$settings->transformSvgs) || (PowerPackHelpers::isAnimatedGif($image) && !$settings->transformAnimatedGifs)) {
+            return is_array($transforms) ? [$image] : $image;
+        }
+        
+        return ImagerX::getInstance()->imager->transformImage($image, $transforms, $defaults, $config);
+    }
     
+
+    /**
+     * --- Private methods ------------------------------------------------------------------------------------------------------------------
+     */
     
     private function maybeLoadLazysizes(Settings $settings): void
     {
