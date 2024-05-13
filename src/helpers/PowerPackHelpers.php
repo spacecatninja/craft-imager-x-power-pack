@@ -138,7 +138,7 @@ class PowerPackHelpers
 
         if ($settings->placeholder === 'blurup') {
             try {
-                $bgImage = ImagerX::getInstance()->imagerx->transformImage($image, ['width' => $placeHolderWidth, 'height' => $placeHolderHeight], [], ['transformer' => 'craft']);
+                $bgImage = ImagerX::getInstance()->imagerx->transformImage($image, ['width' => $placeHolderWidth, 'height' => $placeHolderHeight], $settings->blurupTransformParams, ['transformer' => 'craft']);
                 $dataUri = $bgImage->getDataUri();
             } catch (\Throwable $throwable) {
                 \Craft::error('An error occurred when trying to create placeholder in Imager X Power Pack: '.$throwable->getMessage(), __METHOD__);

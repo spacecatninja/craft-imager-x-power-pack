@@ -15,8 +15,11 @@ class Settings extends Model
     public array $defaultTransformParams = [];
     
     public string $altTextHandle = 'alt';
+    
     public string $placeholder = ''; // '', 'dominantColor', 'blurup', 'blurhash'
     public int $placeholderSize = 16;
+    public array $blurupTransformParams = ['effects' => ['blur' => true]];
+    
     public string $loading = 'lazy';
     public string $decoding = 'auto';
     public bool $objectPosition = true;

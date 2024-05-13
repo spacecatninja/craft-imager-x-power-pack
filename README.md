@@ -272,14 +272,19 @@ Possible values: `'', 'dominantColor', 'blurup', 'blurhash'`
 When enabled a css placeholder will be added to the image tag, and will be displayed until the
 image is loaded.
 
-_Please note that using the `blurup` type will result in a transformed image being created using
+_Please note that using using the placeholder functionality will result in a transformed image being created using
 the native `craft` transformer._
 
 ### placeholderSize [int]
 _Default: `16`_    
-When using the `blurup` style placeholder, this is the base size (width) of the small image
+When using the `blurup` or `blurhash` style placeholders, this is the base size (width) of the small image
 that is generated and used as the blurup. A higher value will create a more detailed placeholder,
 but will increase the size of the base64 encoded image and your document size.
+
+### blurupTransformParams [array]
+_Default: `['effects' => ['blur' => true]]`_  
+Extra parameters that are passed to Imager when transforming the image that is used as a blurup. A standard blur is added
+by default to improve the visual quality.
 
 ### loading [string]
 _Default: `'lazy'`_     
