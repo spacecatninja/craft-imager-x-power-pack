@@ -166,7 +166,12 @@ never have to think about it again.
 The `class` parameter is for adding classes to the `<img>` tag, both for the normal one inside the `<picture>`, but 
 also the fallback image inside the `<noscript>` tag if you're using lazySizes. If you want to add classes, or other 
 attributes to the picture tag itself, use the [native `attr` filter](https://craftcms.com/docs/4.x/dev/filters.html#attr) 
-on the output directly.  
+on the output directly.
+
+All parameters that end up as attributes in the markup, are passed through the same filters as when using the 
+native `attr` filter. This means that you can pass strings to `class` and `filter`, but you can also use an 
+array of classes (ie `class: ['absolute', 'full', shouldHaveSpecialClass ? 'special-class']`), or an object notation for 
+styles (ie `style: { background: red }`).
 
 Also notice that this example uses the new quick syntax in Imager, which provides a very compact way to generate a
 full source set, if all you need is a range of sizes. 
@@ -257,13 +262,11 @@ You can configure the adapter by creating a file in your config folder called
 `imager-x-power-pack.php`, and override settings as needed.
 
 ### altTextHandle [string]
-
 _Default: `'alt'`_  
 The name of the Asset field handle to be used for alternative text on the image tag.
 Defaults to the built in `alt` field, but can be changed to a custom field.
 
 ### placeholder [string]
-
 _Default: `''`_  
 Possible values: `'', 'dominantColor', 'blurup', 'blurhash'`   
 When enabled a css placeholder will be added to the image tag, and will be displayed until the
@@ -273,33 +276,28 @@ _Please note that using the `blurup` type will result in a transformed image bei
 the native `craft` transformer._
 
 ### placeholderSize [int]
-
 _Default: `16`_    
 When using the `blurup` style placeholder, this is the base size (width) of the small image
 that is generated and used as the blurup. A higher value will create a more detailed placeholder,
 but will increase the size of the base64 encoded image and your document size.
 
 ### loading [string]
-
 _Default: `'lazy'`_     
 Sets the [loading strategy](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#loading) for the image tag.
 You'd usually want this set to `'lazy'`, but for images that are candidates to be your[Largest Contentful Paint (LCP)](https://web.dev/articles/lcp)
 element, you'd want to use `'eager'`.
 
 ### decoding [string]
-
 _Default: `'auto'`_     
 Sets the [decoding hint](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#decoding) for the image tag.
 
 ### objectPosition [bool]
-
 _Default: `true`_   
 When enabled (default) an `object-position` CSS style with the focal point from Craft, will automatically be added to the
 image tag. This will ensure that the focal point of the image is taken into consideration when the image is used to cover
 a wrapper with a different aspect ratio. The styles for the image and wrapper is up to you to add.
 
 ### defaultTransformParams [array]
-
 _Default: `[]`_     
 Default transforms that are merged into all transform.
 
@@ -307,7 +305,6 @@ _If you use auto generation, make sure to include these defaults explicitely in 
 render auto generation useless._
 
 ### transformSvgs [bool]
-
 _Default: `false`_     
 When disabled (default), SVGs will not be transformed by Imager, and merely output as-is when passed to `pppicture` or `ppimg`. 
 Attributes like `width` and `height` will be added based on the source file.
@@ -316,7 +313,6 @@ _This could lead to unexpected results depending on your use-case, so consider w
 you need to handle this outside of the power pack._
 
 ### transformAnimatedGifs [bool]
-
 _Default: `false`_     
 When disabled (default), animated GIFs will not be transformed by Imager, and merely output as-is when passed to `pppicture` or `ppimg`. 
 Attributes like `width` and `height` will be added based on the source file.
@@ -324,9 +320,7 @@ Attributes like `width` and `height` will be added based on the source file.
 _This could lead to unexpected results depending on your use-case, so consider whether or not this works for you, or if
 you need to handle this outside of the power pack._
 
-
 ### lazysizes [bool]
-
 _Default: `false`_     
 When enabled the markup generated will be customized to fit with the (awesome) [lazySizes](https://github.com/aFarkas/lazysizes)
 library. `data-sizes` will be set to `auto`, the source sets will be put into `data-srcset` attributes, and a `<noscript>` tag
