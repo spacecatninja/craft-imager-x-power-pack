@@ -1,5 +1,10 @@
 # Imager X Power Pack Changelog
 
+## 1.0.2 - 2024-05-13
+
+### Added
+- Added support for `blurupTransformParams` config setting, it defaults to a blur effect.
+
 ## 1.0.1 - 2024-05-13
 
 ### Added
