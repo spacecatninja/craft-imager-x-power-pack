@@ -155,8 +155,9 @@ class PowerPackService extends Component
                 }
 
                 if ($canHavePlaceholder && $settings->placeholder !== '') {
-                    $styles = PowerPackHelpers::getPlaceholderStyles($defaultImage, $settings);
-
+                    $transform = ImagerX::getInstance()->imager->transformImage($image, ['width' => 200, 'ratio' => $defaultImageWidth/$defaultImageHeight ], [], ['transformer' => 'craft']);
+                    $styles = PowerPackHelpers::getPlaceholderStyles($transform, $settings);
+                    
                     if (!empty($styles)) {
                         $attrs['style'] = [...$styles, ...$attrs['style']];
                     }
