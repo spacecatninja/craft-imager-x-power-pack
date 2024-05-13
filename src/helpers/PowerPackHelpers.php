@@ -34,6 +34,18 @@ class PowerPackHelpers
         }
 
         $params['defaults'] = $defaults;
+
+        if (!isset($params['class'])) {
+            $params['class'] = [];
+        } elseif (!is_array($params['class'])) {
+            $params['class'] = [$params['class']];
+        }
+        
+        if (!isset($params['style'])) {
+            $params['style'] = [];
+        } elseif (is_string($params['style'])) {
+            $params['style'] = Html::cssStyleToArray($params['style']);
+        }
         
         if (!isset($params['sizes'])) {
             $params['sizes'] = '100vw';
@@ -56,14 +68,13 @@ class PowerPackHelpers
         }
 
         if ($settings->lazysizes) {
-            $params['class'] = isset($params['class']) ? $params['class'].' '.$settings->lazysizesClass : $settings->lazysizesClass;
+            $params['class'][] = $settings->lazysizesClass;
         }
 
         if ($settings->objectPosition && $image instanceof Asset) {
-            $objectPositionStyles = 'object-position: '.$image->getFocalPoint(true).'; ';
-            $params['style'] = isset($params['style']) ? $objectPositionStyles.$params['style'] : $objectPositionStyles;
+            $params['style']['objectPosition'] = $image->getFocalPoint(true);
         }
-
+        
         return $params;
     }
 
@@ -114,7 +125,7 @@ class PowerPackHelpers
         return false;
     }
 
-    public static function getPlaceholderStyles(TransformedImageInterface $image, Settings $settings): string
+    public static function getPlaceholderStyles(TransformedImageInterface $image, Settings $settings): array
     {
         $placeHolderWidth = $settings->placeholderSize;
         $placeHolderHeight = round($placeHolderWidth * ($image->height / $image->width));
@@ -122,7 +133,7 @@ class PowerPackHelpers
         if ($settings->placeholder === 'dominantColor') {
             $color = ImagerX::getInstance()->color->getDominantColor($image);
 
-            return 'background-color: '.$color.';';
+            return ['backgroundColor' => $color];
         }
 
         if ($settings->placeholder === 'blurup') {
@@ -135,7 +146,7 @@ class PowerPackHelpers
             }
 
             if (!empty($dataUri)) {
-                return 'background: url('.$dataUri.') center center / cover;';
+                return ['background' => 'url('.$dataUri.') center center / cover'];
             }
         }
 
@@ -151,11 +162,11 @@ class PowerPackHelpers
             }
 
             if (!empty($dataUri)) {
-                return 'background: url('.$dataUri.') center center / cover;';
+                return ['background' => 'url('.$dataUri.') center center / cover'];
             }
         }
 
-        return '';
+        return [];
     }
     
     public static function isSvg(Asset|string $image): bool

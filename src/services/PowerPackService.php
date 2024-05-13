@@ -157,12 +157,8 @@ class PowerPackService extends Component
                 if ($canHavePlaceholder && $settings->placeholder !== '') {
                     $styles = PowerPackHelpers::getPlaceholderStyles($defaultImage, $settings);
 
-                    if ($styles !== '') {
-                        if (isset($attrs['style'])) {
-                            $attrs['style'] .= ' '.$styles;
-                        } else {
-                            $attrs['style'] = $styles;
-                        }
+                    if (!empty($styles)) {
+                        $attrs['style'] = [...$styles, ...$attrs['style']];
                     }
                 }
             }
@@ -177,7 +173,8 @@ class PowerPackService extends Component
                 }
             }
 
-            $element = Html::tag($elementType, PHP_EOL, $attrs);
+            $element = Html::tag($elementType, PHP_EOL);
+            $element = Html::modifyTagAttributes($element, $attrs);
 
             $elements[] = $element;
         }
@@ -191,10 +188,9 @@ class PowerPackService extends Component
         // If using lazysizes, let's output a rudimentary noscript alternative
         if ($settings->lazysizes && $fallbackSrcUrl) {
             if (isset($params['class'])) {
-                $params['class'] = trim(str_replace($settings->lazysizesClass, '', $params['class']));
-                
-                if ($params['class'] === '') {
-                    $params['class'] = null;
+                $index = array_search($settings->lazysizesClass, $params['class'], true);
+                if ($index !== false) {
+                    unset($params['class'][$index]);
                 }
             }
             
@@ -236,11 +232,13 @@ class PowerPackService extends Component
         $transform = ImagerX::getInstance()->imager->transformImage($image, ['width' => 200 ], [], ['transformer' => 'craft']);
         $styles = PowerPackHelpers::getPlaceholderStyles($transform, $settings);
 
-        if ($styles === '') {
+        if (empty($styles)) {
             return '';
         }
         
-        return $output==='attr' ? 'style="'.$styles.'"' : $styles;
+        $parsedStyles = Html::cssStyleFromArray($styles);
+        
+        return $output==='attr' ? 'style="'.$parsedStyles.'"' : $parsedStyles;
     }
     
     public function transform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, array $defaults = null, array $config = null): array|TransformedImageInterface|Asset|null
