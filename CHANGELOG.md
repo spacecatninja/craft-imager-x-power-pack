@@ -1,5 +1,10 @@
 # Imager X Power Pack Changelog
 
+## 1.0.3 - 2024-05-14
+
+### Fixed
+- Fixed incorrect naming of styles.
+
 ## 1.0.2 - 2024-05-13
 
 ### Added
