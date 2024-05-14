@@ -72,7 +72,7 @@ class PowerPackHelpers
         }
 
         if ($settings->objectPosition && $image instanceof Asset) {
-            $params['style']['objectPosition'] = $image->getFocalPoint(true);
+            $params['style']['object-position'] = $image->getFocalPoint(true);
         }
         
         return $params;
@@ -133,7 +133,7 @@ class PowerPackHelpers
         if ($settings->placeholder === 'dominantColor') {
             $color = ImagerX::getInstance()->color->getDominantColor($image);
 
-            return ['backgroundColor' => $color];
+            return ['background-color' => $color];
         }
 
         if ($settings->placeholder === 'blurup') {

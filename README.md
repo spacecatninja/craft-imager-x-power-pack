@@ -171,7 +171,7 @@ on the output directly.
 All parameters that end up as attributes in the markup, are passed through the same filters as when using the 
 native `attr` filter. This means that you can pass strings to `class` and `filter`, but you can also use an 
 array of classes (ie `class: ['absolute', 'full', shouldHaveSpecialClass ? 'special-class']`), or an object notation for 
-styles (ie `style: { background: red }`).
+styles (ie `style: { background: 'red' }`).
 
 Also notice that this example uses the new quick syntax in Imager, which provides a very compact way to generate a
 full source set, if all you need is a range of sizes. 
