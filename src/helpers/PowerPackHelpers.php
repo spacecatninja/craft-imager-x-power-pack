@@ -25,7 +25,7 @@ use yii\helpers\Html;
  */
 class PowerPackHelpers
 {
-    public static function parseDefaultParams(Asset|string $image, array $params, Settings $settings): array
+    public static function parseDefaultParams(Asset|string|null $image, array $params, Settings $settings): array
     {
         $defaults = $params['defaults'] ?? [];
         
