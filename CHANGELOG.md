@@ -1,5 +1,13 @@
 # Imager X Power Pack Changelog
 
+## 1.0.4 - 2024-08-09
+
+### Changed
+- Changed behaviour of `ppimg` to allow `null` values for `image` to be more in line with how Imager works.
+
+### Fixed
+- Fixed an issue that would occur if width and/or height of an image/transform could be deducted (for instance for `imgix` transformer with external urls and `getExternalImageDimensions` set to false).
+
 ## 1.0.3 - 2024-05-14
 
 ### Fixed
