@@ -62,6 +62,10 @@ class PowerPackService extends Component
         $fallbackSrcUrl = null;
 
         foreach ($sources as [$image, $transform, $mediaQuery, $format]) {
+            if ($image === null) {
+                continue;
+            }
+            
             $isLast = !(count($elements) < (count($sources) - 1));
             $elementType = $isLast ? 'img' : 'source';
             $canHavePlaceholder = true;
@@ -71,9 +75,9 @@ class PowerPackService extends Component
                 $canHavePlaceholder = false;
                 
                 if ($image instanceof Asset) {
-                    $defaultImageWidth = $image->width ?? 1;
-                    $defaultImageHeight = $image->height ?? 1;
-                    $srcset = $image->url.' '.$defaultImageWidth.'w';
+                    $defaultImageWidth = $image->width;
+                    $defaultImageHeight = $image->height;
+                    $srcset = $image->url.' '.($defaultImageWidth ?? 1).'w';
                     $srcImageUrl = $image->url;
                 } else {
                     // Image is a string, we need to assume that this can be used as an URL, and is relative to @webroot
@@ -95,8 +99,8 @@ class PowerPackService extends Component
                         [$defaultImageWidth, $defaultImageHeight] = getimagesize($imagePath);
                     }
                     
-                    $defaultImageWidth = $defaultImageWidth ?? 1;
-                    $defaultImageHeight = $defaultImageHeight ?? 1;
+                    $defaultImageWidth = $defaultImageWidth;
+                    $defaultImageHeight = $defaultImageHeight;
                     
                     $srcset = $srcImageUrl.' '.$defaultImageWidth.'w';
                 }
@@ -115,24 +119,33 @@ class PowerPackService extends Component
                 }
                 
                 $defaultImage = $transforms[0] ?? null;
-                $defaultImageWidth = $defaultImage?->width ?? 1;
-                $defaultImageHeight = $defaultImage?->height ?? 1;
+                $defaultImageWidth = $defaultImage?->width;
+                $defaultImageHeight = $defaultImage?->height;
                 $srcset = ImagerX::getInstance()->imager->srcset($transforms);
                 $srcImageUrl = $defaultImage?->url;
             }
+            
+            if ($defaultImageWidth === 0) {
+                $defaultImageWidth = null;
+            } 
+            
+            if ($defaultImageHeight === 0) {
+                $defaultImageHeight = null;
+            } 
             
             if ($isLast) {
                 $fallbackSrcUrl = $srcImageUrl;
                 $fallbackImageWidth = $defaultImageWidth;
                 $fallbackImageHeight = $defaultImageHeight;
             }
+            
             if ($settings->lazysizes) {
                 $attrs = [
-                    'src' => $elementType === 'img' ? ImagerX::getInstance()->placeholder->placeholder(['width' => $defaultImageWidth, 'height' => $defaultImageHeight]) : null,
-                    'srcset' => ImagerX::getInstance()->placeholder->placeholder(['width' => $defaultImageWidth, 'height' => $defaultImageHeight]),
+                    'src' => $elementType === 'img' ? ImagerX::getInstance()->placeholder->placeholder(['width' => $defaultImageWidth ?? 1, 'height' => $defaultImageHeight ?? 1]) : null,
+                    'srcset' => ImagerX::getInstance()->placeholder->placeholder(['width' => $defaultImageWidth ?? 1, 'height' => $defaultImageHeight ?? 1]),
                     'data-sizes' => 'auto',
                     'data-srcset' => $srcset,
-                    'data-aspectratio' => $defaultImage ? $defaultImageWidth / $defaultImageHeight : null,
+                    'data-aspectratio' => $defaultImageWidth && $defaultImageHeight ? $defaultImageWidth / $defaultImageHeight : null,
                 ];
             } else {
                 $attrs = [
@@ -210,7 +223,7 @@ class PowerPackService extends Component
         return new Markup($markup, 'utf-8');
     }
     
-    public function createImg(Asset|string $image, array|string $transform, array $params = [], array $configOverrides = []): Markup
+    public function createImg(Asset|string|null $image, array|string $transform, array $params = [], array $configOverrides = []): Markup
     {
         return $this->createPicture([$image, $transform], $params, $configOverrides, true);
     }
