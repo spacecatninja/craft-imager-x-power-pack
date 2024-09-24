@@ -56,7 +56,7 @@ class PowerPackTwigExtension extends AbstractExtension
         return PowerPack::getInstance()->power->createImg($image, $transform, $params, $config);
     }
     
-    public function ppplaceholder(Asset|string $image, string $output='attr', string $type='dominantColor', ?array $config = null): string
+    public function ppplaceholder(Asset|string|null $image, string $output='attr', string $type='dominantColor', ?array $config = null): string
     {
         return PowerPack::getInstance()->power->createPlaceholder($image, $output, $type, $config);
     }

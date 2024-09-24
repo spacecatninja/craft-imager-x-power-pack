@@ -228,8 +228,12 @@ class PowerPackService extends Component
         return $this->createPicture([$image, $transform], $params, $configOverrides, true);
     }
     
-    public function createPlaceholder(Asset|string $image, string $output='attr', string $type='dominantColor', ?array $configOverrides = null): string
+    public function createPlaceholder(Asset|string|null $image, string $output='attr', string $type='dominantColor', ?array $configOverrides = null): string
     {
+        if (empty($image)) {
+            return '';
+        }
+        
         /* @var Settings $settings */
         $settings = clone PowerPack::getInstance()?->getSettings(); // cloning to avoid overriding cached values when applying overrides
         
