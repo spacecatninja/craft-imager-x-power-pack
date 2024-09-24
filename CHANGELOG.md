@@ -1,5 +1,10 @@
 # Imager X Power Pack Changelog
 
+## 1.0.5 - 2024-09-24
+
+### Changed
+- Changed behaviour of `ppplaceholder` to allow `null` values for `image` to be more in line with how Imager works.
+
 ## 1.0.4 - 2024-08-09
 
 ### Changed
