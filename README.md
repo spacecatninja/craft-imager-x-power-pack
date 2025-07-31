@@ -19,12 +19,12 @@ To install the plugin, follow these instructions:
 ## Usage
 
 The Power Pack comes with a couple of convenient template functions that will help you craft
-optimal responsive images. It won't be a good fit for _all_ use-cases, and is _slighly opinionated_, but
+optimal responsive images. It won't be a good fit for _all_ use-cases, and is _slightly opinionated_, but
 aims to turbo charge _most_ of your needs.
 
 The main functionality is wrapped in the `pppicture` template function, for generating complex `<picture>` markup fast and easy, 
 and `ppimg` that generates a single `<img>` tag. Both assume that you're familiar with, and leverage, `srcset` and `sizes`
-(which, you should). They also lean into Imager's named transforms and quick transform syntax, to provide markup that
+(which you should). They also lean into Imager's named transforms and quick transform syntax, to provide markup that
 is compact and easy to maintain.
 
 The Power Pack comes with a number of [config settings](#configuring) that can be used to customize the output. For instance
@@ -83,7 +83,7 @@ and then `myLargeTransforms` above that. For the smaller sizes, we want to use t
 ```
 
 A lot of attributes going on (I've removed the actual transforms from `src` and `srcset` to make things more readable), 
-but the gist of it is; we got a `<picture>` element with one `<source>` that has a media query which will trigger for browser sizes
+but the gist of it is: We got a `<picture>` element with one `<source>` that has a media query which will trigger for browser sizes
 from 768px and above, and an `<img>` element with the fallback sources, and the necessary attributes.
 
 Let's build on this and add additional support for browsers that support WebP.
@@ -110,10 +110,25 @@ Let's build on this and add additional support for browsers that support WebP.
 
 As you can see, additional sources have now been added that will kick in if the browser supports WebP.
 
+The parameter format does not control the file format, it only sets the source’s attribute (`type="image/webp"`). For actually getting a WebP file 
+you need a dedicated named transform in your `config/imager-x-transforms.php`. 
+```
+'myLargeWebpTransforms' => [
+    'displayName' => 'my Large Webp Transforms',
+    'transforms' => [
+        ['width' => 600],
+        ['width' => 4000],
+    ],
+    'defaults' => [
+        'format' => 'webp',
+    ]
+],
+```
+
 Notice that the syntax for sources is pretty loose, if you don't need a media query as the third parameter, you can just go ahead 
 and add format if you need that.
 
-When using media queryes based on width, it's recommended to just use an integer for the minimum width as shown above. If you do,
+When using media queries based on width, it's recommended to just use an integer for the minimum width as shown above. If you do,
 power pack will be able to sort the sources so that the order is always correct (remember, the browser will pick the
 _first_ `<source>` that it matches with, not the _most specific_ of the sources). 
 
