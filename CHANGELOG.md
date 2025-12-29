@@ -1,5 +1,10 @@
 # Imager X Power Pack Changelog
 
+## 1.1.0 - 2025-12-29
+
+### Fixed
+- Fixed an issue where an error would be thrown for external SVGs, and reduced redundant sources if transformSvgs is false and the source image is the same for all sources (fixes #7).
+
 ## 1.0.5 - 2024-09-24
 
 ### Changed
