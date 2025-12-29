@@ -57,7 +57,11 @@ class PowerPackService extends Component
         unset($params['defaults'], $params['sizes'], $params['imagerOverrides']);
 
         $sources = PowerPackHelpers::parseSources($sources);
-
+        
+        if (!$settings->transformSvgs || !$settings->transformAnimatedGifs) {
+            $sources = PowerPackHelpers::reduceSources($sources, $settings);
+        }
+        
         $elements = [];
         $fallbackSrcUrl = null;
 
@@ -74,11 +78,16 @@ class PowerPackService extends Component
                 $defaultImage = $image;
                 $canHavePlaceholder = false;
                 
+                $srcImageUrl = '';
+                $defaultImageWidth = null;
+                $defaultImageHeight = null;
+                
                 if ($image instanceof Asset) {
                     $defaultImageWidth = $image->width;
                     $defaultImageHeight = $image->height;
-                    $srcset = $image->url.' '.($defaultImageWidth ?? 1).'w';
                     $srcImageUrl = $image->url;
+                } else if (is_string($image) and str_starts_with($image, 'http://') or str_starts_with($image, 'https://') or str_starts_with($image, '//') or str_starts_with($image, 'data:image/')) {
+                    $srcImageUrl = $image;
                 } else {
                     // Image is a string, we need to assume that this can be used as an URL, and is relative to @webroot
                     
@@ -98,16 +107,21 @@ class PowerPackService extends Component
                     } else {
                         [$defaultImageWidth, $defaultImageHeight] = getimagesize($imagePath);
                     }
-                    
-                    $defaultImageWidth = $defaultImageWidth;
-                    $defaultImageHeight = $defaultImageHeight;
-                    
-                    $srcset = $srcImageUrl.' '.$defaultImageWidth.'w';
+                }
+                
+                if (($srcImageUrl !== '' && $defaultImageWidth !== null) || $settings->lazysizes) {
+                    $srcset = $srcImageUrl.' '.($defaultImageWidth ?? 1).'w';
+                } else {
+                    $srcset = '';
                 }
                 
             } else {
                 try {
                     $transforms = ImagerX::getInstance()->imager->transformImage($image, $transform, $defaults, $imagerOverrides);
+                    
+                    if (!is_array($transforms)) {
+                        $transforms = [$transforms];
+                    }
                 } catch (ImagerException $e) {
                     \Craft::error('An error occured when trying to transform image in Imager X Power Pack: '.$e->getMessage(), __METHOD__);
 
@@ -150,8 +164,8 @@ class PowerPackService extends Component
             } else {
                 $attrs = [
                     'src' => $elementType === 'img' ? $srcImageUrl : null,
-                    'srcset' => $srcset,
-                    'sizes' => $sizes,
+                    'srcset' => !empty($srcset) ? $srcset : null,
+                    'sizes' => !empty($srcset) ? $sizes : null,
                 ];
             }
 

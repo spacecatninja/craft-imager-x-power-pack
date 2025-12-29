@@ -110,8 +110,53 @@ class PowerPackHelpers
         }
 
         usort($r, static fn($a, $b) => $a[2] < $b[2]);
-
+        
         return $r;
+    }
+
+    public static function reduceSources(array $sources, Settings $settings): array
+    {
+        if (count($sources) <= 1) {
+            return $sources;
+        }
+        
+        $image = $sources[0][0];
+        
+        // Strip redundant sources if transformSvgs is false and all sources are the same
+        if (!$settings->transformSvgs && self::isSvg($image)) {
+            $allSame = true;
+            
+            foreach ($sources as $source) {
+                if (!self::isSvg($source[0])) {
+                    $allSame = false;
+                    break;
+                }
+            }
+            
+            if ($allSame) {
+                $sources = [array_pop($sources)];
+            }
+            return $sources;
+        }
+        
+        // Strip redundant sources if transformAnimatedGifs is false and all sources are the same
+        if (!$settings->transformAnimatedGifs && self::isAnimatedGif($image)) {
+            $allSame = true;
+            
+            foreach ($sources as $source) {
+                if (!self::isAnimatedGif($source[0])) {
+                    $allSame = false;
+                    break;
+                }
+            }
+            
+            if ($allSame) {
+                $sources = [array_pop($sources)];
+            }
+            return $sources;
+        }
+        
+        return $sources;
     }
 
     public static function hasMediaQueryStringValue(array $sources): bool
