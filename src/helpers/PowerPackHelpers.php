@@ -170,8 +170,10 @@ class PowerPackHelpers
         return false;
     }
 
-    public static function getPlaceholderStyles(TransformedImageInterface $image, Settings $settings): array
+    public static function getPlaceholderStyles(TransformedImageInterface|null $image, Settings $settings): array
     {
+        if (empty($image)) return [];
+
         $placeHolderWidth = $settings->placeholderSize;
         $placeHolderHeight = round($placeHolderWidth * ($image->height / $image->width));
 
