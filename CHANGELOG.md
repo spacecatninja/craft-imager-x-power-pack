@@ -1,5 +1,13 @@
 # Imager X Power Pack Changelog
 
+## 1.1.1 - 2026-02-23
+
+### Changed
+- Removed requirement for php-imagick, it's not really needed (fixes #10).  
+
+### Fixed
+- Fix an exception caused by `null` being passed to getPlaceholderStyles (thanks, @lexisother).  
+
 ## 1.1.0 - 2025-12-29
 
 ### Fixed
