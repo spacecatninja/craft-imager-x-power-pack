@@ -1,5 +1,13 @@
 # Imager X Power Pack Changelog
 
+## 1.1.2 - 2026-05-23
+
+### Added
+- Added support for Imager X 6.0
+
+### Fixed
+- Fixed isSvg helper, it now handles `null` gracefully
+
 ## 1.1.1 - 2026-02-23
 
 ### Changed
