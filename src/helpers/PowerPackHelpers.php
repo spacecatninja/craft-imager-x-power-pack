@@ -216,8 +216,12 @@ class PowerPackHelpers
         return [];
     }
     
-    public static function isSvg(Asset|string $image): bool
+    public static function isSvg(Asset|string|null $image): bool
     {
+        if ($image === null) {
+            return false;
+        }
+        
         if ($image instanceof Asset) {
             return $image->extension === 'svg';
         }
