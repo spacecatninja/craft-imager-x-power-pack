@@ -1,5 +1,10 @@
 # Imager X Power Pack Changelog
 
+## 1.1.3 - 2026-06-11
+
+### Fixed
+- Fixed isAnimatedGif helper, it now handles `null` gracefully
+
 ## 1.1.2 - 2026-05-23
 
 ### Added
