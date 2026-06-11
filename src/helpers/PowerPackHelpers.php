@@ -229,8 +229,12 @@ class PowerPackHelpers
         return pathinfo($image, PATHINFO_EXTENSION) === 'svg';
     }
 
-    public static function isAnimatedGif(Asset|string $image): bool
+    public static function isAnimatedGif(Asset|string|null $image): bool
     {
+        if ($image === null) {
+            return false;
+        }
+        
         if ($image instanceof Asset) {
             $extension = $image->extension;
         } else {
