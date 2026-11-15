@@ -10,10 +10,10 @@
 
 namespace SpaceCatNinja\ImagerXPowerPack\Twig;
 
-use craft\elements\Asset;
-use spacecatninja\imagerx\adapters\ImagerAdapterInterface;
-use spacecatninja\imagerx\models\TransformedImageInterface;
-use SpaceCatNinja\ImagerXPowerPack\PowerPack;
+use CraftCms\Cms\Asset\Elements\Asset;
+use SpaceCatNinja\ImagerX\Adapters\ImagerAdapterInterface;
+use SpaceCatNinja\ImagerX\Data\TransformedImageInterface;
+use SpaceCatNinja\ImagerXPowerPack\Services\PowerPackService;
 use Twig\Extension\AbstractExtension;
 
 use Twig\Markup;
@@ -48,21 +48,21 @@ class PowerPackTwigExtension extends AbstractExtension
 
     public function pppicture(array $sources, array $params = [], array $config = []): Markup
     {
-        return PowerPack::getInstance()->power->createPicture($sources, $params, $config);
+        return app(PowerPackService::class)->createPicture($sources, $params, $config);
     }
     
     public function ppimg(Asset|string|null $image, array|string $transform, array $params = [], array $config = []): Markup
     {
-        return PowerPack::getInstance()->power->createImg($image, $transform, $params, $config);
+        return app(PowerPackService::class)->createImg($image, $transform, $params, $config);
     }
     
     public function ppplaceholder(Asset|string|null $image, string $output='attr', string $type='dominantColor', ?array $config = null): string
     {
-        return PowerPack::getInstance()->power->createPlaceholder($image, $output, $type, $config);
+        return app(PowerPackService::class)->createPlaceholder($image, $output, $type, $config);
     }
     
-    public function pptransform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, array $defaults = null, array $config = null): array|TransformedImageInterface|Asset|null
+    public function pptransform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, ?array $defaults = null, ?array $config = null): array|TransformedImageInterface|Asset|null
     {
-        return PowerPack::getInstance()->power->transform($image, $transforms, $defaults, $config);
+        return app(PowerPackService::class)->transform($image, $transforms, $defaults, $config);
     }
 }

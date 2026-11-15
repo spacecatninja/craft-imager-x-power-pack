@@ -8,36 +8,32 @@
 
 namespace SpaceCatNinja\ImagerXPowerPack;
 
-use craft\base\Plugin;
-
-use SpaceCatNinja\ImagerXPowerPack\Services\PowerPackService;
+use CraftCms\Cms\Plugin\Plugin;
+use CraftCms\Cms\Plugin\PluginSettings;
+use CraftCms\Cms\Support\Facades\Twig;
 use SpaceCatNinja\ImagerXPowerPack\Twig\PowerPackTwigExtension;
 
 /**
  * @author    SpaceCatNinja
  * @since     1.0.0
- *
- * @property  PowerPackService $power
- *
  */
 class PowerPack extends Plugin
 {
-    public function init(): void
+    public string $minVersionRequired = '1.1.4';
+
+    public function register(): void
     {
-        parent::init();
+        parent::register();
 
-        // Register services
-        $this->setComponents([
-            'power' => PowerPackService::class,
-        ]);
-
-        \Craft::$app->view->registerTwigExtension(new PowerPackTwigExtension());
+        $this->app->singleton(Settings::class, fn() => $this->getSettings());
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function createSettingsModel(): ?Settings
+    public function boot(): void
+    {
+        Twig::registerExtension(new PowerPackTwigExtension());
+    }
+
+    protected static function createSettings(): ?PluginSettings
     {
         return new Settings();
     }

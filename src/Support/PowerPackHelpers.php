@@ -10,12 +10,14 @@
 
 namespace SpaceCatNinja\ImagerXPowerPack\Support;
 
-use craft\base\Element;
-use craft\elements\Asset;
-use spacecatninja\imagerx\ImagerX;
-use spacecatninja\imagerx\models\TransformedImageInterface;
+use CraftCms\Cms\Asset\Elements\Asset;
+use CraftCms\Cms\Support\Html;
+use Illuminate\Support\Facades\Log;
+use SpaceCatNinja\ImagerX\Data\TransformedImageInterface;
+use SpaceCatNinja\ImagerX\Services\ImagerColorService;
+use SpaceCatNinja\ImagerX\Services\ImagerService;
+use SpaceCatNinja\ImagerX\Services\PlaceholderService;
 use SpaceCatNinja\ImagerXPowerPack\Settings;
-use yii\helpers\Html;
 
 /**
  * Class PowerPackHelpers
@@ -44,7 +46,7 @@ class PowerPackHelpers
         if (!isset($params['style'])) {
             $params['style'] = [];
         } elseif (is_string($params['style'])) {
-            $params['style'] = Html::cssStyleToArray($params['style']);
+            $params['style'] = Html::explodeStyle($params['style']);
         }
         
         if (!isset($params['sizes'])) {
@@ -182,17 +184,17 @@ class PowerPackHelpers
         $placeHolderHeight = round($placeHolderWidth * ($image->height / $image->width));
 
         if ($settings->placeholder === 'dominantColor') {
-            $color = ImagerX::getInstance()->color->getDominantColor($image);
+            $color = app(ImagerColorService::class)->getDominantColor($image->getUrl());
 
             return ['background-color' => $color];
         }
 
         if ($settings->placeholder === 'blurup') {
             try {
-                $bgImage = ImagerX::getInstance()->imagerx->transformImage($image, ['width' => $placeHolderWidth, 'height' => $placeHolderHeight], $settings->blurupTransformParams, ['transformer' => 'craft']);
+                $bgImage = app(ImagerService::class)->transformImage($image, ['width' => $placeHolderWidth, 'height' => $placeHolderHeight], $settings->blurupTransformParams, ['transformer' => 'craft']);
                 $dataUri = $bgImage->getDataUri();
             } catch (\Throwable $throwable) {
-                \Craft::error('An error occurred when trying to create placeholder in Imager X Power Pack: '.$throwable->getMessage(), __METHOD__);
+                Log::error('An error occurred when trying to create placeholder in Imager X Power Pack: '.$throwable->getMessage());
                 $dataUri = null;
             }
 
@@ -205,10 +207,10 @@ class PowerPackHelpers
             try {
                 if (method_exists($image, 'getBlurhash')) {
                     $blurhash = $image->getBlurhash();
-                    $dataUri = !empty($blurhash) ? ImagerX::getInstance()->placeholder->placeholder(['type' => 'blurhash', 'width' => $placeHolderWidth, 'height' => $placeHolderHeight, 'hash' => $blurhash]) : null;
+                    $dataUri = !empty($blurhash) ? app(PlaceholderService::class)->placeholder(['type' => 'blurhash', 'width' => $placeHolderWidth, 'height' => $placeHolderHeight, 'hash' => $blurhash]) : null;
                 }
             } catch (\Throwable $throwable) {
-                \Craft::error('An error occurred when trying to create placeholder in Imager X Power Pack: '.$throwable->getMessage(), __METHOD__);
+                Log::error('An error occurred when trying to create placeholder in Imager X Power Pack: '.$throwable->getMessage());
                 $dataUri = null;
             }
 
@@ -227,7 +229,7 @@ class PowerPackHelpers
         }
         
         if ($image instanceof Asset) {
-            return $image->extension === 'svg';
+            return $image->getExtension() === 'svg';
         }
         
         return pathinfo($image, PATHINFO_EXTENSION) === 'svg';
@@ -240,11 +242,11 @@ class PowerPackHelpers
         }
         
         if ($image instanceof Asset) {
-            $extension = $image->extension;
+            $extension = $image->getExtension();
         } else {
             $extension = pathinfo($image, PATHINFO_EXTENSION);
         }
         
-        return $extension === 'gif' && ImagerX::getInstance()->imagerx->isAnimated($image);
+        return $extension === 'gif' && app(ImagerService::class)->isAnimated($image);
     }
 }

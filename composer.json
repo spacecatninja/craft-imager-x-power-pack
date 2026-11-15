@@ -27,23 +27,21 @@
         }
     ],
     "require": {
-        "php": "^8.0.2",
-        "craftcms/cms": "^4.5.0|^5.0.0",
-        "spacecatninja/imager-x": "^4.3.0|^5.0.0|^6.0.0-beta"
+        "php": "^8.5",
+        "craftcms/cms": "^6.0.0-alpha",
+        "spacecatninja/imager-x": "^7.0.0-beta.2"
     },
     "autoload": {
         "psr-4": {
-          "SpaceCatNinja\\ImagerXPowerPack\\": "src/"
+            "SpaceCatNinja\\ImagerXPowerPack\\": "src/"
         }
     },
     "extra": {
         "name": "Imager X Power Pack",
         "handle": "imager-x-power-pack",
-        "schemaVersion": "1.0.0",
+        "schemaVersion": "2.0.0",
         "hasCpSettings": false,
-        "hasCpSection": false,
         "changelogUrl": "https://raw.githubusercontent.com/spacecatninja/craft-imager-x-power-pack/master/CHANGELOG.md",
-        "components": {},
         "class": "SpaceCatNinja\\ImagerXPowerPack\\PowerPack"
     }
 }

@@ -8,9 +8,9 @@
 
 namespace SpaceCatNinja\ImagerXPowerPack;
 
-use craft\base\Model;
+use CraftCms\Cms\Plugin\PluginSettings;
 
-class Settings extends Model
+class Settings extends PluginSettings
 {
     public array $defaultTransformParams = [];
     

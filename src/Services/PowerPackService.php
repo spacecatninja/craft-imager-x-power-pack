@@ -8,21 +8,21 @@
 
 namespace SpaceCatNinja\ImagerXPowerPack\Services;
 
-use craft\base\Component;
-use craft\elements\Asset;
-use craft\helpers\App;
-use craft\helpers\Html;
-use craft\image\Svg;
-use spacecatninja\imagerx\adapters\ImagerAdapterInterface;
-use spacecatninja\imagerx\exceptions\ImagerException;
-use spacecatninja\imagerx\ImagerX;
-use spacecatninja\imagerx\models\TransformedImageInterface;
-use spacecatninja\imagerx\services\ImagerService;
-use SpaceCatNinja\ImagerXPowerPack\Support\PowerPackHelpers;
-use SpaceCatNinja\ImagerXPowerPack\PowerPack;
+use CraftCms\Cms\Asset\Elements\Asset;
+use CraftCms\Cms\Image\Svg;
+use CraftCms\Cms\Support\Env;
+use CraftCms\Cms\Support\Facades\HtmlStack;
+use CraftCms\Cms\Support\Html;
+use Illuminate\Container\Attributes\Singleton;
+use Illuminate\Support\Facades\Log;
+use SpaceCatNinja\ImagerX\Adapters\ImagerAdapterInterface;
+use SpaceCatNinja\ImagerX\Data\TransformedImageInterface;
+use SpaceCatNinja\ImagerX\Exceptions\ImagerException;
+use SpaceCatNinja\ImagerX\Services\ImagerService;
+use SpaceCatNinja\ImagerX\Services\PlaceholderService;
 use SpaceCatNinja\ImagerXPowerPack\Settings;
+use SpaceCatNinja\ImagerXPowerPack\Support\PowerPackHelpers;
 use Twig\Markup;
-
 
 /**
  * Power Pack Service
@@ -30,17 +30,18 @@ use Twig\Markup;
  * @author    SpaceCatNinja
  * @since     1.0.0
  */
-class PowerPackService extends Component
+#[Singleton]
+class PowerPackService
 {
-    
+    public function __construct(
+        private readonly ImagerService $imager,
+        private readonly PlaceholderService $placeholders,
+    ) {
+    }
+
     public function createPicture(array $sources, ?array $params = null, ?array $configOverrides = null, bool $imgOnly = false): Markup
     {
-        /* @var Settings $settings */
-        $settings = clone PowerPack::getInstance()?->getSettings(); // cloning to avoid overriding cached values when applying overrides
-
-        if ($configOverrides !== null) {
-            $settings->setAttributes($configOverrides, false);
-        }
+        $settings = $this->getSettings($configOverrides);
 
         if (!is_array($sources[0])) {
             $sources = [$sources];
@@ -83,9 +84,9 @@ class PowerPackService extends Component
                 $defaultImageHeight = null;
                 
                 if ($image instanceof Asset) {
-                    $defaultImageWidth = $image->width;
-                    $defaultImageHeight = $image->height;
-                    $srcImageUrl = $image->url;
+                    $defaultImageWidth = $image->getWidth();
+                    $defaultImageHeight = $image->getHeight();
+                    $srcImageUrl = $image->getUrl();
                 } else if (is_string($image) and str_starts_with($image, 'http://') or str_starts_with($image, 'https://') or str_starts_with($image, '//') or str_starts_with($image, 'data:image/')) {
                     $srcImageUrl = $image;
                 } else {
@@ -93,10 +94,10 @@ class PowerPackService extends Component
                     
                     if (str_starts_with($image, '@webroot')) {
                         $srcImageUrl = '/'.ltrim(ltrim($image, '@webroot'), '/');
-                        $imagePath = App::parseEnv($image);
+                        $imagePath = Env::parse($image);
                     } else {
                         $srcImageUrl = '/'.ltrim($image, '/');
-                        $imagePath = App::parseEnv('@webroot'.$srcImageUrl);
+                        $imagePath = Env::parse('@webroot'.$srcImageUrl);
                     }
                     
                     if (PowerPackHelpers::isSvg($image)) {
@@ -117,13 +118,13 @@ class PowerPackService extends Component
                 
             } else {
                 try {
-                    $transforms = ImagerX::getInstance()->imager->transformImage($image, $transform, $defaults, $imagerOverrides);
+                    $transforms = $this->imager->transformImage($image, $transform, $defaults, $imagerOverrides);
                     
                     if (!is_array($transforms)) {
                         $transforms = [$transforms];
                     }
                 } catch (ImagerException $e) {
-                    \Craft::error('An error occured when trying to transform image in Imager X Power Pack: '.$e->getMessage(), __METHOD__);
+                    Log::error('An error occurred when trying to transform image in Imager X Power Pack: '.$e->getMessage());
 
                     if ($imagerConfig->suppressExceptions) {
                         return new Markup('', 'utf-8');
@@ -135,7 +136,7 @@ class PowerPackService extends Component
                 $defaultImage = $transforms[0] ?? null;
                 $defaultImageWidth = $defaultImage?->width;
                 $defaultImageHeight = $defaultImage?->height;
-                $srcset = ImagerX::getInstance()->imager->srcset($transforms);
+                $srcset = $this->imager->srcset($transforms);
                 $srcImageUrl = $defaultImage?->url;
             }
             
@@ -155,8 +156,8 @@ class PowerPackService extends Component
             
             if ($settings->lazysizes) {
                 $attrs = [
-                    'src' => $elementType === 'img' ? ImagerX::getInstance()->placeholder->placeholder(['width' => $defaultImageWidth ?? 1, 'height' => $defaultImageHeight ?? 1]) : null,
-                    'srcset' => ImagerX::getInstance()->placeholder->placeholder(['width' => $defaultImageWidth ?? 1, 'height' => $defaultImageHeight ?? 1]),
+                    'src' => $elementType === 'img' ? $this->placeholders->placeholder(['width' => $defaultImageWidth ?? 1, 'height' => $defaultImageHeight ?? 1]) : null,
+                    'srcset' => $this->placeholders->placeholder(['width' => $defaultImageWidth ?? 1, 'height' => $defaultImageHeight ?? 1]),
                     'data-sizes' => 'auto',
                     'data-srcset' => $srcset,
                     'data-aspectratio' => $defaultImageWidth && $defaultImageHeight ? $defaultImageWidth / $defaultImageHeight : null,
@@ -182,7 +183,7 @@ class PowerPackService extends Component
                 }
 
                 if ($canHavePlaceholder && $settings->placeholder !== '') {
-                    $transform = ImagerX::getInstance()->imager->transformImage($image, ['width' => 200, 'ratio' => $defaultImageWidth/$defaultImageHeight ], [], ['transformer' => 'craft']);
+                    $transform = $this->imager->transformImage($image, ['width' => 200, 'ratio' => $defaultImageWidth/$defaultImageHeight ], [], ['transformer' => 'craft']);
                     $styles = PowerPackHelpers::getPlaceholderStyles($transform, $settings);
                     
                     if (!empty($styles)) {
@@ -248,12 +249,7 @@ class PowerPackService extends Component
             return '';
         }
         
-        /* @var Settings $settings */
-        $settings = clone PowerPack::getInstance()?->getSettings(); // cloning to avoid overriding cached values when applying overrides
-        
-        if ($configOverrides !== null) {
-            $settings->setAttributes($configOverrides, false);
-        }
+        $settings = $this->getSettings($configOverrides);
 
         if (empty($type)) {
             return '';
@@ -261,7 +257,7 @@ class PowerPackService extends Component
         
         $settings->placeholder = $type;
         
-        $transform = ImagerX::getInstance()->imager->transformImage($image, ['width' => 200 ], [], ['transformer' => 'craft']);
+        $transform = $this->imager->transformImage($image, ['width' => 200 ], [], ['transformer' => 'craft']);
         $styles = PowerPackHelpers::getPlaceholderStyles($transform, $settings);
 
         if (empty($styles)) {
@@ -273,16 +269,15 @@ class PowerPackService extends Component
         return $output==='attr' ? 'style="'.$parsedStyles.'"' : $parsedStyles;
     }
     
-    public function transform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, array $defaults = null, array $config = null): array|TransformedImageInterface|Asset|null
+    public function transform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, ?array $defaults = null, ?array $config = null): array|TransformedImageInterface|Asset|null
     {
-        /* @var Settings $settings */
-        $settings = clone PowerPack::getInstance()?->getSettings();
-        
+        $settings = app(Settings::class);
+
         if ((PowerPackHelpers::isSvg($image) && !$settings->transformSvgs) || (PowerPackHelpers::isAnimatedGif($image) && !$settings->transformAnimatedGifs)) {
             return is_array($transforms) ? [$image] : $image;
         }
         
-        return ImagerX::getInstance()->imager->transformImage($image, $transforms, $defaults, $config);
+        return $this->imager->transformImage($image, $transforms, $defaults, $config);
     }
     
 
@@ -290,11 +285,26 @@ class PowerPackService extends Component
      * --- Private methods ------------------------------------------------------------------------------------------------------------------
      */
     
+    /**
+     * Returns a copy of the plugin settings with the config overrides applied, so the overrides don't change the
+     * settings that other calls use.
+     */
+    private function getSettings(?array $configOverrides): Settings
+    {
+        $settings = clone app(Settings::class);
+
+        if (!empty($configOverrides)) {
+            Settings::configure($settings, $configOverrides);
+        }
+
+        return $settings;
+    }
+
     private function maybeLoadLazysizes(Settings $settings): void
     {
         if ($settings->lazysizes && $settings->autoloadLazysizes) {
-            \Craft::$app->view->registerJsFile($settings->lazysizesURL, [
-                'async' => ''
+            HtmlStack::jsFile($settings->lazysizesURL, [
+                'async' => true,
             ]);
         }
     }
