@@ -5,14 +5,17 @@ saving time and cognitive load. It's a good deal.
 
 ## Requirements
 
-This plugin requires Imager X 4.5+/5.0+ and Craft CMS 4.0+/5.0+.
+This plugin requires Craft CMS 6.0.0 or later, [Imager X 7.0.0](https://github.com/spacecatninja/craft-imager-x/) or later,
+and PHP 8.5 or later.
+
+Version 1.x of this plugin supports Craft CMS 4 and 5, and Imager X 4, 5 and 6. See [UPGRADE.md](UPGRADE.md) when moving to Craft 6.
 
 ## Installation
 
 To install the plugin, follow these instructions:
 
 1. Install with composer via `composer require spacecatninja/imager-x-power-pack` from your project directory.
-2. Install the plugin in the Craft Control Panel under Settings → Plugins, or from the command line via `./craft plugin/install imager-x-power-pack`.
+2. Install the plugin in the Craft Control Panel under Settings → Plugins, or from the command line via `php artisan craft:plugin:install imager-x-power-pack`.
 
 ---
 
@@ -270,7 +273,9 @@ This, by the way, is a function that benefits from named parameters:
 ### pptransform($image, $transforms[, $defaults=null, $config=null])
 
 Just a wrapper around `craft.imagerx.transformImage`, because that's alot of typing. It also respects the `transformSvgs` and
-`transformAnimatedGifs` config settings, if these are set to `false`, the asset will be returned untransformed.
+`transformAnimatedGifs` config settings, if these are set to `false`, the asset will be returned untransformed. It's returned
+the same way Imager returns transformed images, in an array if you pass in quick syntax, a list of transforms or a named
+transform with a list of transforms, and on its own otherwise.
 
 ```
 {% set transforms = pptransform(image, [1000, 2000]) %}
@@ -280,8 +285,20 @@ Just a wrapper around `craft.imagerx.transformImage`, because that's alot of typ
 
 ## Configuring
 
-You can configure the adapter by creating a file in your config folder called
-`imager-x-power-pack.php`, and override settings as needed.
+You can configure the plugin by creating a file called `config/craft/imager-x-power-pack.php`, that returns an
+array with the settings you want to override:
+
+```php
+<?php
+
+return [
+    'lazysizes' => true,
+    'placeholder' => 'dominantColor',
+];
+```
+
+For different settings per environment, use `env()`, for instance `env('APP_ENV') === 'production'`. Config files are
+loaded before Laravel knows the environment, so `app()->environment()` can't be used in them.
 
 ### altTextHandle [string]
 _Default: `'alt'`_  

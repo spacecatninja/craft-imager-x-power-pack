@@ -1,5 +1,26 @@
 # Imager X Power Pack Changelog
 
+## 2.0.0 - Unreleased
+
+> [!IMPORTANT]
+> Version 2 requires Craft CMS 6, Imager X 7 and PHP 8.5. The config file moves to `config/craft/`, and there are breaking changes for code that uses the plugin's classes. See [UPGRADE.md](UPGRADE.md).
+
+### Added
+- `ppimg()` now accepts images from Imager X adapters, like `pppicture()` and `pptransform()` do.
+
+### Changed
+- The plugin now requires Craft CMS 6, Imager X 7.0.0-beta.2 or later, and PHP 8.5, and uses Craft 6's native plugin APIs. It doesn't need the Yii 2 adapter.
+- The config file is now `config/craft/imager-x-power-pack.php`, and returns a plain array of settings.
+- Classes moved to the `SpaceCatNinja\ImagerXPowerPack` namespace, and to Laravel-style folders.
+- The `power` service component on the plugin was removed. `PowerPackService` is a container singleton, resolve it with `app()`.
+- Updating to version 2 requires version 1.1.4 or later to be installed first.
+
+### Fixed
+- Fixed `pptransform()` returning an untransformed SVG or animated GIF in an array when it was given a single transform, and throwing an error when it was given a named transform. It's now returned the same way Imager X returns transformed images.
+- Fixed an error when `pppicture()` or `pptransform()` was given an image from an Imager X adapter.
+- Fixed an error when a transform failed and Imager X's `suppressExceptions` setting was on. Nothing is output for the image, like when the transform throws an exception.
+- Fixed an error when a placeholder was enabled for an image the transformer doesn't know the dimensions of, like an external image with the Imgix transformer when `getExternalImageDimensions` is off. The image is now output without a placeholder.
+
 ## 1.1.4 - 2026-11-15
 
 ### Fixed
