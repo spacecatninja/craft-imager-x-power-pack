@@ -1,5 +1,11 @@
 # Imager X Power Pack Changelog
 
+## 1.1.4 - 2026-11-15
+
+### Fixed
+- Fixed sources with integer media queries not being sorted, which could make the browser pick a smaller source than intended. Sources are now sorted by their min-width, largest first, and sources that share a media query keep the order they were written in.
+- Fixed sources without a media query getting `media="(min-width: 0px)"`.
+
 ## 1.1.3 - 2026-06-11
 
 ### Fixed
