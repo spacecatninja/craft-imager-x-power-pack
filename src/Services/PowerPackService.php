@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2024 André Elvan
  */
 
-namespace spacecatninja\imagerxpowerpack\services;
+namespace SpaceCatNinja\ImagerXPowerPack\Services;
 
 use craft\base\Component;
 use craft\elements\Asset;
@@ -18,9 +18,9 @@ use spacecatninja\imagerx\exceptions\ImagerException;
 use spacecatninja\imagerx\ImagerX;
 use spacecatninja\imagerx\models\TransformedImageInterface;
 use spacecatninja\imagerx\services\ImagerService;
-use spacecatninja\imagerxpowerpack\helpers\PowerPackHelpers;
-use spacecatninja\imagerxpowerpack\PowerPack;
-use spacecatninja\imagerxpowerpack\models\Settings;
+use SpaceCatNinja\ImagerXPowerPack\Support\PowerPackHelpers;
+use SpaceCatNinja\ImagerXPowerPack\PowerPack;
+use SpaceCatNinja\ImagerXPowerPack\Settings;
 use Twig\Markup;
 
 

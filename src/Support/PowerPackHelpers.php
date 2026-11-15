@@ -8,13 +8,13 @@
  * @copyright Copyright (c) 2024 André Elvan
  */
 
-namespace spacecatninja\imagerxpowerpack\helpers;
+namespace SpaceCatNinja\ImagerXPowerPack\Support;
 
 use craft\base\Element;
 use craft\elements\Asset;
 use spacecatninja\imagerx\ImagerX;
 use spacecatninja\imagerx\models\TransformedImageInterface;
-use spacecatninja\imagerxpowerpack\models\Settings;
+use SpaceCatNinja\ImagerXPowerPack\Settings;
 use yii\helpers\Html;
 
 /**

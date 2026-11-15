@@ -6,7 +6,7 @@
  * @copyright Copyright (c) 2024 André Elvan
  */
 
-namespace spacecatninja\imagerxpowerpack\models;
+namespace SpaceCatNinja\ImagerXPowerPack;
 
 use craft\base\Model;
 

@@ -8,12 +8,12 @@
  * @copyright Copyright (c) 2024 André Elvan
  */
 
-namespace spacecatninja\imagerxpowerpack\twigextensions;
+namespace SpaceCatNinja\ImagerXPowerPack\Twig;
 
 use craft\elements\Asset;
 use spacecatninja\imagerx\adapters\ImagerAdapterInterface;
 use spacecatninja\imagerx\models\TransformedImageInterface;
-use spacecatninja\imagerxpowerpack\PowerPack;
+use SpaceCatNinja\ImagerXPowerPack\PowerPack;
 use Twig\Extension\AbstractExtension;
 
 use Twig\Markup;

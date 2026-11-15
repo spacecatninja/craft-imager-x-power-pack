@@ -6,13 +6,12 @@
  * @copyright Copyright (c) 2024 André Elvan
  */
 
-namespace spacecatninja\imagerxpowerpack;
+namespace SpaceCatNinja\ImagerXPowerPack;
 
 use craft\base\Plugin;
 
-use spacecatninja\imagerxpowerpack\models\Settings;
-use spacecatninja\imagerxpowerpack\services\PowerPackService;
-use spacecatninja\imagerxpowerpack\twigextensions\PowerPackTwigExtension;
+use SpaceCatNinja\ImagerXPowerPack\Services\PowerPackService;
+use SpaceCatNinja\ImagerXPowerPack\Twig\PowerPackTwigExtension;
 
 /**
  * @author    SpaceCatNinja

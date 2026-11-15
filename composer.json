@@ -33,7 +33,7 @@
     },
     "autoload": {
         "psr-4": {
-          "spacecatninja\\imagerxpowerpack\\": "src/"
+          "SpaceCatNinja\\ImagerXPowerPack\\": "src/"
         }
     },
     "extra": {
@@ -44,6 +44,6 @@
         "hasCpSection": false,
         "changelogUrl": "https://raw.githubusercontent.com/spacecatninja/craft-imager-x-power-pack/master/CHANGELOG.md",
         "components": {},
-        "class": "spacecatninja\\imagerxpowerpack\\PowerPack"
+        "class": "SpaceCatNinja\\ImagerXPowerPack\\PowerPack"
     }
 }
