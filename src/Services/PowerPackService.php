@@ -119,10 +119,6 @@ class PowerPackService
             } else {
                 try {
                     $transforms = $this->imager->transformImage($image, $transform, $defaults, $imagerOverrides);
-                    
-                    if (!is_array($transforms)) {
-                        $transforms = [$transforms];
-                    }
                 } catch (ImagerException $e) {
                     Log::error('An error occurred when trying to transform image in Imager X Power Pack: '.$e->getMessage());
 
@@ -131,6 +127,15 @@ class PowerPackService
                     }
 
                     throw $e;
+                }
+
+                // With suppressExceptions on, Imager X logs the error and returns null instead of throwing
+                if (empty($transforms)) {
+                    return new Markup('', 'utf-8');
+                }
+
+                if (!is_array($transforms)) {
+                    $transforms = [$transforms];
                 }
                 
                 $defaultImage = $transforms[0] ?? null;
@@ -182,7 +187,9 @@ class PowerPackService
                     $attrs += $params;
                 }
 
-                if ($canHavePlaceholder && $settings->placeholder !== '') {
+                // The placeholder needs the image's dimensions. Transformers can't always tell them, for instance
+                // Imgix for external images when getExternalImageDimensions is off, and the image is shown without one.
+                if ($canHavePlaceholder && $settings->placeholder !== '' && $defaultImageWidth && $defaultImageHeight) {
                     $transform = $this->imager->transformImage($image, ['width' => 200, 'ratio' => $defaultImageWidth/$defaultImageHeight ], [], ['transformer' => 'craft']);
                     $styles = PowerPackHelpers::getPlaceholderStyles($transform, $settings);
                     
