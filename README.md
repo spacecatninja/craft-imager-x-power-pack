@@ -113,7 +113,8 @@ As you can see, additional sources have now been added that will kick in if the 
 _The parameter format does not control the file format, it only sets the source’s attribute (`type="image/webp"`)._
 
 Notice that the syntax for sources is pretty loose, if you don't need a media query as the third parameter, you can just go ahead 
-and add format if you need that.
+and add format if you need that. Passing `null` explicitly in the media query slot does the same thing, so
+`[image, 'myTransforms', null, 'avif']` and `[image, 'myTransforms', 'avif']` are equivalent.
 
 When using media queries based on width, it's recommended to just use an integer for the minimum width as shown above. If you do,
 power pack will be able to sort the sources so that the order is always correct (remember, the browser will pick the
@@ -131,6 +132,25 @@ But, you can also provide a full media query if you want. All of these examples 
 
 [image, 'myTransforms', 750, 'avif'] // and for format, you can do this
 [image, 'myTransforms', 'avif'] // or this
+```
+
+Two things to be aware of about the automatic sorting:
+
+_If **any** of your sources uses a full media query string (including the `landscape`/`portrait` shortcuts), sorting is
+turned off for the whole set._ There's no meaningful way to order a `max-width` or aspect ratio query against a
+min-width one, so power pack leaves the sources exactly as you wrote them and the order becomes your responsibility.
+Write them largest-first in that case.
+
+_Sources that share the same media query keep the order you wrote them in._ That's what makes it safe to combine art
+direction with format negotiation — the `avif` source stays ahead of the fallback within each breakpoint:
+
+```
+{{ pppicture([
+    [image, 'myLargeAvifTransforms', 768, 'avif'],
+    [image, 'myLargeTransforms', 768],
+    [imageMobile, 'mySmallAvifTransforms', 'avif'],
+    [imageMobile, 'mySmallTransforms']
+]) }}
 ```
 
 In addition to the `sources` parameter, `pppicture` takes two additional parameters; `params`, which are 

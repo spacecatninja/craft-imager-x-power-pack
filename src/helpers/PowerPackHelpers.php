@@ -83,9 +83,9 @@ class PowerPackHelpers
         $r = [];
 
         foreach ($sources as $source) {
-            $s = [$source[0] ?? null, $source[1] ?? null, $source[2] ?? 0, $source[3] ?? null];
+            $s = [$source[0] ?? null, $source[1] ?? null, $source[2] ?? null, $source[3] ?? null];
 
-            if (is_string($s[2]) && $s[3] === null && in_array($s[2], ['jpeg', 'jpg', 'gif', 'webp', 'avif', 'heic'])) {
+            if (is_string($s[2]) && $s[3] === null && in_array($s[2], ['jpeg', 'jpg', 'gif', 'webp', 'avif', 'heic'], true)) {
                 $s[3] = $s[2];
                 $s[2] = null;
             }
@@ -94,23 +94,27 @@ class PowerPackHelpers
                 $s[3] = 'jpeg';
             }
 
-            if (in_array($s[2], ['landscape', 'portrait'])) {
+            if (in_array($s[2], ['landscape', 'portrait'], true)) {
                 $s[2] = "(orientation: $s[2])";
-            }
-
-            if (is_int($s[2])) {
-                $s[2] = "(min-width: $s[2]px)";
             }
 
             $r[] = $s;
         }
 
+        // Integer media queries are left as integers here, and converted to min-width
+        // queries when the source tag is created. That way this check only sees media
+        // queries that the template actually supplied as a string, in which case ordering
+        // is the author's responsibility and the sources are left exactly as written.
         if (self::hasMediaQueryStringValue($r)) {
             return $r;
         }
 
-        usort($r, static fn($a, $b) => $a[2] < $b[2]);
-        
+        // Sort integer min-widths descending, so the browser meets the largest matching
+        // source first. Sorting is stable as of PHP 8.0, so sources that share a media
+        // query (format variants, typically) keep the order they were written in. Sources
+        // without a media query sort last, which is what makes the final one the fallback.
+        usort($r, static fn($a, $b) => ($b[2] ?? 0) <=> ($a[2] ?? 0));
+
         return $r;
     }
 
