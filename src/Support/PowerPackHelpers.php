@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Log;
 use SpaceCatNinja\ImagerX\Data\TransformedImageInterface;
 use SpaceCatNinja\ImagerX\Services\ImagerColorService;
 use SpaceCatNinja\ImagerX\Services\ImagerService;
+use SpaceCatNinja\ImagerX\Services\NamedTransforms;
 use SpaceCatNinja\ImagerX\Services\PlaceholderService;
+use SpaceCatNinja\ImagerX\Support\TransformHelpers;
 use SpaceCatNinja\ImagerXPowerPack\Settings;
 
 /**
@@ -163,6 +165,22 @@ class PowerPackHelpers
         }
         
         return $sources;
+    }
+
+    /**
+     * Returns whether Imager X returns a list of transformed images for the given transforms, rather than a single one.
+     * It does for quick syntax and lists of transforms. Named transforms are resolved first.
+     */
+    public static function isTransformList(array|string $transforms): bool
+    {
+        $resolved = [];
+
+        while (is_string($transforms) && !in_array($transforms, $resolved, true)) {
+            $resolved[] = $transforms;
+            $transforms = app(NamedTransforms::class)->get($transforms)['transforms'] ?? [];
+        }
+
+        return is_array($transforms) && (TransformHelpers::isQuickSyntax($transforms) || isset($transforms[0]));
     }
 
     public static function hasMediaQueryStringValue(array $sources): bool
