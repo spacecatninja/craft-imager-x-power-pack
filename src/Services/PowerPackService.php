@@ -238,7 +238,7 @@ class PowerPackService
         return new Markup($markup, 'utf-8');
     }
     
-    public function createImg(Asset|string|null $image, array|string $transform, array $params = [], array $configOverrides = []): Markup
+    public function createImg(Asset|ImagerAdapterInterface|string|null $image, array|string $transform, array $params = [], array $configOverrides = []): Markup
     {
         return $this->createPicture([$image, $transform], $params, $configOverrides, true);
     }

@@ -51,7 +51,7 @@ class PowerPackTwigExtension extends AbstractExtension
         return app(PowerPackService::class)->createPicture($sources, $params, $config);
     }
     
-    public function ppimg(Asset|string|null $image, array|string $transform, array $params = [], array $config = []): Markup
+    public function ppimg(Asset|ImagerAdapterInterface|string|null $image, array|string $transform, array $params = [], array $config = []): Markup
     {
         return app(PowerPackService::class)->createImg($image, $transform, $params, $config);
     }

@@ -29,7 +29,7 @@ use SpaceCatNinja\ImagerXPowerPack\Settings;
  */
 class PowerPackHelpers
 {
-    public static function parseDefaultParams(Asset|string|null $image, array $params, Settings $settings): array
+    public static function parseDefaultParams(mixed $image, array $params, Settings $settings): array
     {
         $defaults = $params['defaults'] ?? [];
         
@@ -240,31 +240,35 @@ class PowerPackHelpers
         return [];
     }
     
-    public static function isSvg(Asset|string|null $image): bool
+    /**
+     * Returns whether an asset or a path is an SVG. Other images, like the ones from Imager X adapters, are not.
+     */
+    public static function isSvg(mixed $image): bool
     {
-        if ($image === null) {
-            return false;
-        }
-        
         if ($image instanceof Asset) {
             return $image->getExtension() === 'svg';
         }
-        
-        return pathinfo($image, PATHINFO_EXTENSION) === 'svg';
+
+        if (is_string($image)) {
+            return pathinfo($image, PATHINFO_EXTENSION) === 'svg';
+        }
+
+        return false;
     }
 
-    public static function isAnimatedGif(Asset|string|null $image): bool
+    /**
+     * Returns whether an asset or a path is an animated GIF. Other images, like the ones from Imager X adapters, are not.
+     */
+    public static function isAnimatedGif(mixed $image): bool
     {
-        if ($image === null) {
-            return false;
-        }
-        
         if ($image instanceof Asset) {
             $extension = $image->getExtension();
-        } else {
+        } elseif (is_string($image)) {
             $extension = pathinfo($image, PATHINFO_EXTENSION);
+        } else {
+            return false;
         }
-        
+
         return $extension === 'gif' && app(ImagerService::class)->isAnimated($image);
     }
 }
