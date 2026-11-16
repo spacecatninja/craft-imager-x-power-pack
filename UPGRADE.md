@@ -2,7 +2,7 @@
 
 This guide lists what changed in version 2 of Imager X Power Pack, and what you need to update in your project and custom code. It applies when upgrading from version 1 (Craft 4 or 5).
 
-Templates that use `pppicture()`, `ppimg()` and `ppplaceholder()` aren't affected, and `pptransform()` only changed for SVGs and animated GIFs that aren't transformed (see below). Projects need to move and convert the config file. The class changes only affect custom code that uses the plugin's classes directly.
+Templates aren't affected, except for `pptransform()` with SVGs and animated GIFs that aren't transformed, if you upgrade from 1.1.4 (see below). Projects need to move and convert the config file. The class changes only affect custom code that uses the plugin's classes directly.
 
 ## Requirements
 
@@ -53,7 +53,9 @@ Config files are loaded before Laravel knows the environment, so use `env()` for
 
 ### pptransform() with SVGs and animated GIFs
 
-When `transformSvgs` or `transformAnimatedGifs` is off, `pptransform()` returns SVGs and animated GIFs untransformed. It now returns them the same way Imager X returns transformed images: in an array for quick syntax, a list of transforms, or a named transform with a list of transforms, and on its own for a single transform. Version 1 returned an array whenever the transforms were an array, also for a single transform like `{ width: 300 }`, and the image on its own for a named transform, also one with a list of transforms. A named transform threw an error when the image was a path.
+This changed in 1.1.5, so it only affects you if you upgrade from 1.1.4.
+
+When `transformSvgs` or `transformAnimatedGifs` is off, `pptransform()` returns SVGs and animated GIFs untransformed. It now returns them the same way Imager X returns transformed images: in an array for quick syntax, a list of transforms, or a named transform with a list of transforms, and on its own for a single transform. Version 1.1.4 and earlier returned an array whenever the transforms were an array, also for a single transform like `{ width: 300 }`, and the image on its own for a named transform, also one with a list of transforms. A named transform threw an error when the image was a path.
 
 Before:
 
