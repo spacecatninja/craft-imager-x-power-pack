@@ -1,5 +1,16 @@
 # Imager X Power Pack Changelog
 
+## 1.1.5 - 2026-11-16
+
+### Added
+- `ppimg()` now accepts images from Imager X adapters, like `pppicture()` and `pptransform()` do.
+
+### Fixed
+- Fixed `pptransform()` not returning untransformed SVGs and animated GIFs the way Imager X returns transformed images. A single transform, like `{ width: 300 }`, returned the image in an array, a named transform with a list of transforms returned it on its own, and a named transform threw an error when the image was a path. Templates that read the first item for a single transform, like `pptransform(svg, { width: 300 })[0]`, need to be updated.
+- Fixed an error when `pppicture()` or `pptransform()` was given an image from an Imager X adapter.
+- Fixed an error when a transform failed and Imager X's `suppressExceptions` setting was on. Nothing is output for the image, like when the transform throws an exception.
+- Fixed an error when a placeholder was enabled for an image the transformer doesn't know the dimensions of, like an external image with the Imgix transformer when `getExternalImageDimensions` is off. The image is now output without a placeholder.
+
 ## 1.1.4 - 2026-11-15
 
 ### Fixed
