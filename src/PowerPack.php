@@ -19,8 +19,6 @@ use SpaceCatNinja\ImagerXPowerPack\Twig\PowerPackTwigExtension;
  */
 class PowerPack extends Plugin
 {
-    public string $minVersionRequired = '1.1.4';
-
     public function register(): void
     {
         parent::register();

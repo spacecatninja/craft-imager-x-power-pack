@@ -10,7 +10,6 @@
 - The config file is now `config/craft/imager-x-power-pack.php`, and returns a plain array of settings.
 - Classes moved to the `SpaceCatNinja\ImagerXPowerPack` namespace, and to Laravel-style folders.
 - The `power` service component on the plugin was removed. `PowerPackService` is a container singleton, resolve it with `app()`.
-- Updating to version 2 requires version 1.1.4 or later to be installed first.
 
 ## 1.1.5 - 2026-11-16
 

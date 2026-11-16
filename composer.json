@@ -39,7 +39,7 @@
     "extra": {
         "name": "Imager X Power Pack",
         "handle": "imager-x-power-pack",
-        "schemaVersion": "2.0.0",
+        "schemaVersion": "1.0.0",
         "hasCpSettings": false,
         "changelogUrl": "https://raw.githubusercontent.com/spacecatninja/craft-imager-x-power-pack/master/CHANGELOG.md",
         "class": "SpaceCatNinja\\ImagerXPowerPack\\PowerPack"
