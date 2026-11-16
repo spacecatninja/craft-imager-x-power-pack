@@ -12,6 +12,8 @@ namespace spacecatninja\imagerxpowerpack\helpers;
 
 use craft\base\Element;
 use craft\elements\Asset;
+use spacecatninja\imagerx\helpers\NamedTransformHelpers;
+use spacecatninja\imagerx\helpers\TransformHelpers;
 use spacecatninja\imagerx\ImagerX;
 use spacecatninja\imagerx\models\TransformedImageInterface;
 use spacecatninja\imagerxpowerpack\models\Settings;
@@ -161,6 +163,22 @@ class PowerPackHelpers
         }
         
         return $sources;
+    }
+
+    /**
+     * Returns whether Imager X returns a list of transformed images for the given transforms, rather than a single one.
+     * It does for quick syntax and lists of transforms. Named transforms are resolved first.
+     */
+    public static function isTransformList(array|string $transforms): bool
+    {
+        $resolved = [];
+
+        while (is_string($transforms) && !in_array($transforms, $resolved, true)) {
+            $resolved[] = $transforms;
+            $transforms = NamedTransformHelpers::getNamedTransform($transforms)['transforms'] ?? [];
+        }
+
+        return is_array($transforms) && (TransformHelpers::isQuickSyntax($transforms) || isset($transforms[0]));
     }
 
     public static function hasMediaQueryStringValue(array $sources): bool

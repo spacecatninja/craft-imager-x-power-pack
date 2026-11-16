@@ -270,7 +270,9 @@ This, by the way, is a function that benefits from named parameters:
 ### pptransform($image, $transforms[, $defaults=null, $config=null])
 
 Just a wrapper around `craft.imagerx.transformImage`, because that's alot of typing. It also respects the `transformSvgs` and
-`transformAnimatedGifs` config settings, if these are set to `false`, the asset will be returned untransformed.
+`transformAnimatedGifs` config settings, if these are set to `false`, the asset will be returned untransformed. It's returned
+the same way Imager returns transformed images, in an array if you pass in quick syntax, a list of transforms or a named
+transform with a list of transforms, and on its own otherwise.
 
 ```
 {% set transforms = pptransform(image, [1000, 2000]) %}

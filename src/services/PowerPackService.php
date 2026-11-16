@@ -273,13 +273,14 @@ class PowerPackService extends Component
         return $output==='attr' ? 'style="'.$parsedStyles.'"' : $parsedStyles;
     }
     
-    public function transform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, array $defaults = null, array $config = null): array|TransformedImageInterface|Asset|null
+    public function transform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, array $defaults = null, array $config = null): array|TransformedImageInterface|Asset|string|null
     {
         /* @var Settings $settings */
         $settings = clone PowerPack::getInstance()?->getSettings();
         
         if ((PowerPackHelpers::isSvg($image) && !$settings->transformSvgs) || (PowerPackHelpers::isAnimatedGif($image) && !$settings->transformAnimatedGifs)) {
-            return is_array($transforms) ? [$image] : $image;
+            // Returned the way Imager X would return the transformed images, as a list or a single image
+            return PowerPackHelpers::isTransformList($transforms) ? [$image] : $image;
         }
         
         return ImagerX::getInstance()->imager->transformImage($image, $transforms, $defaults, $config);

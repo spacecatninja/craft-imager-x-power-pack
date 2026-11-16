@@ -61,7 +61,7 @@ class PowerPackTwigExtension extends AbstractExtension
         return PowerPack::getInstance()->power->createPlaceholder($image, $output, $type, $config);
     }
     
-    public function pptransform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, array $defaults = null, array $config = null): array|TransformedImageInterface|Asset|null
+    public function pptransform(Asset|ImagerAdapterInterface|string|null $image, array|string $transforms, array $defaults = null, array $config = null): array|TransformedImageInterface|Asset|string|null
     {
         return PowerPack::getInstance()->power->transform($image, $transforms, $defaults, $config);
     }
